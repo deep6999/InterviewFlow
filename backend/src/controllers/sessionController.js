@@ -88,7 +88,7 @@ export async function getSessionById(req, res) {
 
     if (!session) return res.status(404).json({ message: "Session not found" });
 
-    res.status(200).json({ createSession });
+    res.status(200).json({ session });
   } catch (error) {
     console.log("Error in getSessionById controller:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
