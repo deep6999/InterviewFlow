@@ -119,7 +119,7 @@ export async function joinSession(req, res) {
 
     //check if session is already full
     if (session.participant)
-      return res.status(400).json({ message: "Session is full" });
+      return res.status(409).json({ message: "Session is full" });
 
     session.participant = userId;
     await session.save();
