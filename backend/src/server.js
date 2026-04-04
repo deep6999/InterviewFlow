@@ -1,30 +1,34 @@
 import express from "express";
 import path from "path";
 import cors from "cors";
+import chatRoutes from "./routes/chatRoutes.js";
+import sessionRoutes from "./routes/sessionRoutes.js";
 import { ENV } from "./lib/env.js";
 import { fileURLToPath } from "url";
 import { connectDB } from "./lib/db.js";
-import { inngest,functions } from "./lib/inngest.js";
+import { inngest, functions } from "./lib/inngest.js";
 import { serve } from "inngest/express";
+import { clerkMiddleware } from "@clerk/express";
 
 const app = express();
 
 //middleware
 app.use(express.json());
-//
-app.use(cors({origin:ENV.CLIENT_URL,credentials:true}));
-
-
+//cookies middleware to allow cross-origin requests
+app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
+//clerk middleware to protect all routes
+app.use(clerkMiddleware());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frontendPath = path.join(__dirname, "../../frontend/dist");
 
-
-app.use("/api/inngest", serve({client: inngest, functions}));
+app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use("/api/chat", chatRoutes);
+app.use("/api/session", sessionRoutes);
 
 app.get("/book", (req, res) => {
-  res.status(200).json({ message: "Hello, World!" });
+  res.status(200).json({ message: "api running successfully" });
 });
 
 // Serve static files from the React app in production
