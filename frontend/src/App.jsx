@@ -1,24 +1,29 @@
-import { useState } from "react";
-import "./App.css";
-import {
-  Show,
-  SignInButton,
-  SignUpButton,
-  UserAvatar,
-  UserButton,
-} from "@clerk/react";
-
+import { useUser } from "@clerk/react";
+import HomePage from "./pages/HomePage";
+import { Routes, Route, Navigate } from "react-router";
+import DashboardPage from "./pages/DashboardPage";
+import PromblemsPage from "./pages/PromblemsPage"
 function App() {
+  const { isSignedIn, isLoaded } = useUser();
+
+  if (!isLoaded) return null;
+
   return (
     <>
-      <div>
-        <h1>Welcome to My App</h1>
-      </div>
-      <SignInButton mode="modal" />
-      <UserAvatar />
-      <Show when={(user) => user.signedIn}>
-        <UserButton />
-      </Show>
+      <Routes>
+        <Route
+          path="/"
+          element={!isSignedIn ? <HomePage /> : <Navigate to={"/dashboard"} />}
+        />
+        <Route
+          path="/dashboard"
+          element={isSignedIn ? <DashboardPage /> : <Navigate to={"/"} />}
+        />
+        <Route
+          path="/problems"
+          element={isSignedIn ? <PromblemsPage /> : <Navigate to={"/"} />}
+        />
+      </Routes>
     </>
   );
 }
