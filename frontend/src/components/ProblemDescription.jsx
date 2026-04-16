@@ -24,7 +24,8 @@ function ProblemDescription({
         {/* Problem selector */}
         <div className="mt-4">
           <select
-            className="select select-s w-full"
+            className="select select-sm w-full"
+            value={currentProblemId}
             value={currentProblemId}
             onChange={(e) => onProblemChange(e.target.value)}
           >
