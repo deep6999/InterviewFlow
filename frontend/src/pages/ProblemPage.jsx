@@ -3,9 +3,8 @@ import { useNavigate, useParams } from "react-router";
 import { PROBLEMS } from "../data/problems";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
-{
-  /* Components Import */
-}
+// Components Import
+import Navbar from "../components/Navbar";
 import Navbar from "../components/Navbar";
 import ProblemDescription from "../components/ProblemDescription";
 import CodeEditorPanel from "../components/CodeEditorPanel";
