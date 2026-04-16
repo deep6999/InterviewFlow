@@ -1,9 +1,9 @@
 import { Link } from "react-router";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/Navbar.jsx";
 
-import { PROBLEMS } from "../data/problems";
+import { PROBLEMS } from "../data/problems.js";
 import { ChevronRightIcon, Code2Icon } from "lucide-react";
-import { getDifficultyBadgeClass } from "../lib/utils";
+import { getDifficultyBadgeClass } from "../lib/utils.js";
 
 function ProblemsPage() {
   const problems = Object.values(PROBLEMS);
