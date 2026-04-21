@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { PROBLEMS } from "../data/problems";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { executeCode } from "../lib/piston";
+import { executeCode } from "../lib/onlinecompiler";
 import toast from "react-hot-toast";
 import confetti from "canvas-confetti";
 
@@ -89,23 +89,47 @@ function ProblemPage() {
     setOutput(null);
 
     const result = await executeCode(selectedLanguage, code);
-    setOutput(result);
     setIsRunning(false);
 
-    // check if code executed successfully and matches expected output
+    if (!result.success) {
+      const executionErrorResult = {
+        ...result,
+        verdict: "execution_error",
+        title: "Execution Error",
+      };
 
-    if (result.success) {
-      const expectedOutput = currentProblem.expectedOutput[selectedLanguage];
-      const testsPassed = checkIfTestsPassed(result.output, expectedOutput);
+      setOutput(executionErrorResult);
+      toast.error(result.error || "Code execution failed!");
+      return;
+    }
 
-      if (testsPassed) {
-        triggerConfetti();
-        toast.success("All tests passed! Great job!");
-      } else {
-        toast.error("Tests failed. Check your output!");
-      }
+    const expectedOutput = currentProblem.expectedOutput[selectedLanguage];
+    const testsPassed = checkIfTestsPassed(result.output, expectedOutput);
+
+    if (testsPassed) {
+      const acceptedResult = {
+        ...result,
+        verdict: "accepted",
+        title: "Accepted",
+        expectedOutput,
+      };
+
+      setOutput(acceptedResult);
+      triggerConfetti();
+      toast.success("All tests passed! Great job!");
     } else {
-      toast.error("Code execution failed!");
+      const wrongAnswerResult = {
+        ...result,
+        success: false,
+        verdict: "wrong_answer",
+        title: "Wrong Answer",
+        expectedOutput,
+        error:
+          "Your code ran successfully, but the output did not match the expected result.",
+      };
+
+      setOutput(wrongAnswerResult);
+      toast.error("Wrong answer. Compare your output with the expected result.");
     }
   };
 

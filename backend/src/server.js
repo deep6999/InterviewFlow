@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import cors from "cors";
 import chatRoutes from "./routes/chatRoutes.js";
+import codeRoutes from "./routes/codeRoutes.js";
 import sessionRoutes from "./routes/sessionRoutes.js";
 import { ENV } from "./lib/env.js";
 import { fileURLToPath } from "url";
@@ -11,11 +12,27 @@ import { serve } from "inngest/express";
 import { clerkMiddleware } from "@clerk/express";
 
 const app = express();
+const allowedOrigins = [
+  ENV.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:5174",
+].filter(Boolean);
 
 //middleware
 app.use(express.json());
 //cookies middleware to allow cross-origin requests
-app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  }),
+);
 //clerk middleware to protect all routes
 app.use(clerkMiddleware());
 
@@ -25,6 +42,7 @@ const frontendPath = path.join(__dirname, "../../frontend/dist");
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
+app.use("/api/code", codeRoutes);
 app.use("/api/session", sessionRoutes);
 
 app.get("/book", (req, res) => {
