@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import path from "path";
 import cors from "cors";
 import chatRoutes from "./routes/chatRoutes.js";
@@ -39,6 +40,7 @@ app.use(clerkMiddleware());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frontendPath = path.join(__dirname, "../../frontend/dist");
+const frontendIndexPath = path.join(frontendPath, "index.html");
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
@@ -51,11 +53,22 @@ app.get("/book", (req, res) => {
 
 // Serve static files from the React app in production
 if (ENV.NODE_ENV === "production") {
-  app.use(express.static(frontendPath));
+  if (fs.existsSync(frontendIndexPath)) {
+    app.use(express.static(frontendPath));
 
-  app.use((req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
-  });
+    app.get(/^\/(?!api\/).*/, (req, res, next) => {
+      // Let asset requests fail with a normal 404 instead of returning HTML.
+      if (path.extname(req.path)) {
+        return next();
+      }
+
+      return res.sendFile(frontendIndexPath);
+    });
+  } else {
+    console.warn(
+      `Frontend build not found at ${frontendIndexPath}. Run the frontend build before starting the server in production.`,
+    );
+  }
 }
 
 const startServer = async () => {
