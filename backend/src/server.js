@@ -19,23 +19,36 @@ const allowedOrigins = [
   "http://localhost:5174",
 ].filter(Boolean);
 
-//middleware
-app.use(express.json());
-//cookies middleware to allow cross-origin requests
-app.use(
+const apiCors = (req, res, next) => {
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      const isAllowedOrigin = allowedOrigins.includes(origin);
+      const isSameHost = (() => {
+        try {
+          return new URL(origin).host === req.get("host");
+        } catch {
+          return false;
+        }
+      })();
+
+      if (isAllowedOrigin || isSameHost) {
         return callback(null, true);
       }
 
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-  }),
-);
-//clerk middleware to protect all routes
-app.use(clerkMiddleware());
+  })(req, res, next);
+};
+
+//middleware
+app.use(express.json());
+app.use("/api", apiCors);
+app.use("/api", clerkMiddleware());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
