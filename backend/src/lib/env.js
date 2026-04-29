@@ -1,7 +1,13 @@
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// load environment variables from .env file
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, "../../.env");
+
+// Always load backend/.env, even if the server is started from the repo root.
+dotenv.config({ path: envPath });
 
 export const ENV = {
   PORT: process.env.PORT || 3000,
