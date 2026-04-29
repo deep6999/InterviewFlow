@@ -58,7 +58,7 @@ const frontendIndexPath = path.join(frontendPath, "index.html");
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/code", codeRoutes);
-app.use("/api/session", sessionRoutes);
+app.use("/api/sessions", sessionRoutes);
 
 app.get("/book", (req, res) => {
   res.status(200).json({ message: "api running successfully" });
